@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+	
+	<!-- Root Context: defines shared resources visible to all other web components -->
+	<!-- File패키지 component -->
+	<context:component-scan base-package="com.sh.file"/>
+	
+	<!-- 분할된 request를 합치는 객체 -->
+	<bean class="org.springframework.web.multipart.commons.CommonsMultipartResolver" id="multipartResolver">
+		<property name="defaultEncoding" value="UTF-8"/>
+		<!-- 파일 하나당 size -->
+		<property name="maxUploadSizePerFile" value="10485760"/>
+		<!-- 파일 총 size -->
+		<property name="maxUploadSize" value="104857600"/>
+	</bean>
+	
+	<!-- 파일 저장 -->
+	 <bean class="com.sh.util.FileSaver" id="fileSaver"/>
+	
+	<!-- properties읽어오는 부분 -->
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" id="propertyPlaceholderConfigurer">
+		<property name="locations" value="classpath:properties/*.properties"/>
+	</bean>
+	
+	<!-- DirverManagerDataSource 등록 -->
+		<bean class="org.springframework.jdbc.datasource.DriverManagerDataSource" id="dataSource">
+		<property name="username" value="${oracle.user}" />
+		<property name="password" value="${oracle.pw}" />
+		<property name="url" value="${oracle.url}" />
+		<property name="driverClassName" value="${oracle.driver}" />
+	</bean>
+	<!-- sqlSessionFactoryBean등록 -->
+	<bean class="org.mybatis.spring.SqlSessionFactoryBean" id="sqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"/>
+		<property name="mapperLocations" value="classpath:/myBatis/mappers/**/*Mapper.xml"/>
+		<property name="configLocation" value="classpath:/myBatis/config/myBatisConfig.xml"/>
+	</bean>
+	<!-- sqlSession 등록 -->
+	<bean class="org.mybatis.spring.SqlSessionTemplate" id="sqlSession">
+		<constructor-arg name="sqlSessionFactory" ref="sqlSessionFactoryBean"/>
+	</bean>
+</beans>
